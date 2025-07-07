@@ -49,6 +49,14 @@ int checkHighScore(int cur);
 int readLastLevel();
 
 void writeLevel(int curlevel);
+
+int readLastScore();
+
+void writeScore(int curScore);
+
+int readlasthealth();
+
+void writeHealth(int curHealth);
 /**
  * 加载并初始化游戏文本标签
  * @param window 游戏窗口
@@ -57,7 +65,14 @@ void writeLevel(int curlevel);
  * @param healthLabel 生命值标签
  * @param highScoreLable 最高分标签
  */
-void loadTexts(sf::RenderWindow& window, sf::Font& font, sf::Text& scoreLabel, sf::Text& healthLabel, sf::Text& highScoreLable);
+void loadTexts(sf::RenderWindow& window, sf::Font& font, sf::Text& scoreLabel, sf::Text& healthLabel, sf::Text& highScoreLable, bool iscontinue);
+
+void DrawGameState(sf::RenderWindow& window, sf::Font& font, Background& background, sf::Text& scoreLabel, sf::Text& healthLabel, sf::Text& highScoreLable,
+std::vector<Enemy> balls,
+std::vector<Bullet> bullets,
+std::vector<BossBullet> bossbullets,
+Player& player, Boss1& boss,
+bool isPause);
 
 
 #endif // !_MISCFUNCTION_H_

@@ -14,6 +14,7 @@ Bullet::Bullet(const sf::Texture& texture, sf::Vector2f position) :
         isShooting = false;//初始状态：未射击
         isHit = false;//初始状态：未射中
         speed = 50;//速度：30
+        
     }
     //更新铅笔状态
     // 参数：
@@ -42,10 +43,11 @@ Bullet::Bullet(const sf::Texture& texture, sf::Vector2f position) :
             move(velocity_bullet);
         }
         //左键射击
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) && bulletClock.getElapsedTime().asSeconds() >= bulletShootRate)
         {
             isShooting = true;
             laserSound.play();
+			bulletClock.restart(); // 重置计时器
         }
     }
     //获取射击状态

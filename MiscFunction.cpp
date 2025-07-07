@@ -43,7 +43,7 @@ Boss loadBoss(sf::RenderWindow& window)
 Background loadBackground()
 {
 	sf::Texture backgroundTexture;
-	backgroundTexture.loadFromFile("Backdrop.png");//加载背景纹理
+	backgroundTexture.loadFromFile("PNG/background.png");//加载背景纹理
 	Background backgroundSprite(backgroundTexture, { 0.f, 0.f });
 	return backgroundSprite;
 }
@@ -170,6 +170,50 @@ void writeLevel(int curlevel)
 	file.close();
 }
 
+int readLastScore()
+{
+	// 读取上次选择的模式
+	std::ifstream file("LastScore.txt");
+	if (!file.is_open())
+	{
+		std::cerr << "Error opening last score file." << std::endl;
+		return -1;
+	}
+	int lastscore;
+	file >> lastscore;
+	file.close();
+	return lastscore;
+}
+
+void writeScore(int curScore)
+{
+	std::ofstream file("LastScore.txt");
+	file << curScore;
+	file.close();
+}
+
+int readlasthealth()
+{
+	// 读取上次选择的模式
+	std::ifstream file("Lasthealth.txt");
+	if (!file.is_open())
+	{
+		std::cerr << "Error opening last health file." << std::endl;
+		return -1;
+	}
+	int Lasthealth;
+	file >> Lasthealth;
+	file.close();
+	return Lasthealth;
+}
+
+void writeHealth(int curHealth)
+{
+	std::ofstream file("Lasthealth.txt");
+	file << curHealth;
+	file.close();
+}
+
 /**
  * 加载并初始化游戏文本标签
  * @param window 游戏窗口
@@ -178,23 +222,37 @@ void writeLevel(int curlevel)
  * @param healthLabel 生命值标签
  * @param highScoreLable 最高分标签
  */
-void loadTexts(sf::RenderWindow& window, sf::Font& font, sf::Text& scoreLabel, sf::Text& healthLabel, sf::Text& highScoreLable)
+void loadTexts(sf::RenderWindow& window, sf::Font& font, sf::Text& scoreLabel, sf::Text& healthLabel, sf::Text& highScoreLable, bool iscontinue)
 {
 
 	//determine scale based on monitor
 	sf::Vector2u windowSize = window.getSize();
 	float scale = (float)windowSize.x / 1920;
-
+	
 	//set font and scale for score and health labels
-	scoreLabel.setFont(font);
-	scoreLabel.setString("Score: 0");
+	if (iscontinue)
+	{
+		string lastscore = std::to_string(readLastScore());
+		scoreLabel.setString("Score: " + lastscore);
+	}
+	else
+	{
+		scoreLabel.setString("Score: 0");
+	}
 	scoreLabel.setCharacterSize(30);
 	scoreLabel.setFillColor(sf::Color::Green);
 	scoreLabel.setOrigin({ scoreLabel.getGlobalBounds().size.x / 2, scoreLabel.getGlobalBounds().size.y / 2 });
 	scoreLabel.setPosition({ (float)windowSize.x / 2, (float)windowSize.y * .93f });
 
-	healthLabel.setString("5 HP");
-	healthLabel.setFont(font);
+	if (iscontinue)
+	{
+		string lasthealth;
+		lasthealth = std::to_string(readlasthealth());
+		healthLabel.setString(lasthealth+" HP");
+	}
+	else {
+		healthLabel.setString("5 HP");
+	}
 	healthLabel.setCharacterSize(30);
 	healthLabel.setFillColor(sf::Color::Red);
 	healthLabel.setOrigin({ healthLabel.getGlobalBounds().size.x / 2, healthLabel.getGlobalBounds().size.y / 2 });
@@ -209,9 +267,61 @@ void loadTexts(sf::RenderWindow& window, sf::Font& font, sf::Text& scoreLabel, s
 	//set font and scale for highscore label
 	highScoreLable.setCharacterSize(30);
 	highScoreLable.setFillColor(sf::Color::Red);
-	highScoreLable.setFont(font);
 	highScoreLable.setString("High Score: " + line);
 	highScoreLable.setOrigin({ (float)highScoreLable.getGlobalBounds().size.x / 2, highScoreLable.getGlobalBounds().size.y / 2 });
 	highScoreLable.setPosition({ (float)windowSize.x / 1.25f , (float)windowSize.y * .93f });
 
+}
+
+void DrawGameState(sf::RenderWindow& window, sf::Font& font, Background& background, sf::Text& scoreLabel, sf::Text& healthLabel, sf::Text& highScoreLable,
+	std::vector<Enemy> balls,
+	std::vector<Bullet> bullets,
+	std::vector<BossBullet> bossbullets,
+	Player& player, Boss1& boss,
+	bool isPause)
+{
+	// 清屏
+	window.clear();
+
+	// 绘制所有游戏对象 //
+
+	// 绘制背景和文本
+	window.draw(background);
+	window.draw(scoreLabel);
+	window.draw(healthLabel);
+	window.draw(highScoreLable);
+
+	// 绘制所有敌人
+	for (const auto& ball : balls)
+	{
+		window.draw(ball);
+	}
+
+	// 绘制所有子弹
+	for (const auto& bullet : bullets)
+	{
+		window.draw(bullet);
+	}
+
+	for (const auto& bossbullet : bossbullets)
+	{
+		window.draw(bossbullet);
+	}
+
+	// 绘制玩家
+	window.draw(player);
+	window.draw(boss);
+
+	if (isPause)
+	{
+		// 绘制暂停界面
+		sf::Text pauseText(font, "Game Paused", 50);
+		pauseText.setFillColor(sf::Color::White);
+		pauseText.setPosition({ (float)window.getSize().x / 2, (float)window.getSize().y / 2 });
+		pauseText.setOrigin({ pauseText.getGlobalBounds().size.x / 2, pauseText.getGlobalBounds().size.y / 2 });
+		window.draw(pauseText);
+	}
+
+	// 显示绘制内容
+	window.display();
 }

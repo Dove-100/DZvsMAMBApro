@@ -42,7 +42,6 @@ void Player::decrementPlayerHealth()
     if (health > 0)
     {
         health -= 1;
-
     }
 }
 

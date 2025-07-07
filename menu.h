@@ -8,6 +8,8 @@
 #include "boss.h"
 #include "player.h"
 #include "background.h"
+
+static bool isContinue; // 是否继续上次游戏
 enum class gameStateClass {
     mainMenu,
     Mode,
@@ -33,6 +35,7 @@ public:
     Menu(const sf::Texture& backgroundTexture, const sf::Texture& playerTexture, const sf::Texture& bossTexture, const sf::Font& font, sf::Vector2u windowSize);
     //菜单开始页面
     int startMenu(sf::RenderWindow& window);
+    bool isContinueLast();
 private:
     Background background;//背景
     Player player;//玩家

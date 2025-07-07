@@ -1,6 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Window.hpp>
 #include <SFML/Audio.hpp>
+#include <vector>
+#include <string>
 #include <iostream>
 #include "menu.h"
 #include "player.h"
@@ -10,11 +12,11 @@
 #include "enemy.h"
 #include "Windows.h"
 #include "MiscFunction.h"
-#include <vector>
-#include <string>
 #include "bullet.h"
 #include "bossBullet.h"
 #include "gameOverpage.h"
+
+bool isPause = false; // 游戏是否暂停
 
 int main()
 {
@@ -105,9 +107,6 @@ int main()
     sf::Text healthLabel(font);  // 生命值显示
     sf::Text highScoreLable(font);  // 最高分显示
 
-    // 设置文本样式
-    loadTexts(window, font, scoreLabel, healthLabel, highScoreLable);
-
     // 设置初始生成速率
     float enemySpawnRate = 4;  // 敌人生成速率(秒)
     float pencilSpawnRate = 0.1;  // 子弹生成速率(秒)
@@ -116,6 +115,7 @@ int main()
     // 显示开始菜单
     Menu menu(background.getTexture(), player.getTexture(), boss.getTexture(), font, windowSize);
     int level = menu.startMenu(window);
+	bool isContinuelast = menu.isContinueLast();  // 检查是否继续上次游戏
     if (level == 1) {
         bossTexture.loadFromFile("boss/green_boss.png");
     }
@@ -143,6 +143,13 @@ int main()
         writeLevel(level);
         firstBoss.setHealth(300);
     }
+    if (isContinuelast) 
+    {
+		player.setHealth(readlasthealth());  // 恢复玩家生命值
+    }
+
+    // 设置文本样式
+    loadTexts(window, font, scoreLabel, healthLabel, highScoreLable, isContinuelast);
 
     //加载boss子弹纹理
     sf::Texture bossBullet;
@@ -163,192 +170,179 @@ int main()
         {
             // 按ESC键关闭窗口
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Escape))
-
+            {
+                writeHealth(player.getHealth());  // 保存玩家生命值
+				writeScore(score); // 保存当前分数
                 window.close();
-        }
-        /* ------------------------------------- 实体生成模块 --------------------------------------- */
-        // 敌人生成逻辑
-        if (ball_spawn_clock.getElapsedTime().asSeconds() >= enemySpawnRate)
-        {
-            // 创建新敌人
-            Enemy newBall(enemyTextures[std::rand() % 3]);
-            float scale = 0.1f + ((float)(std::rand() % 5 + 1) / 60);
-            newBall.setScale({ scale, scale });
-            balls.push_back(newBall);
-            ball_spawn_clock.restart();
-            // 逐渐增加难度(减少生成间隔)
-            if (enemySpawnRate > 1) enemySpawnRate -= 0.1f;
-            std::cout << "Number of balls: " << balls.size() << std::endl;
-        }
-        // 子弹生成逻辑
-        if (bullets[bullets.size() - 1].getIsShooting() == true &&
-            bullet_spawn_clock.getElapsedTime().asSeconds() >= pencilSpawnRate)
-        {
-            Bullet newPencil(bulletTex, player.getPosition());
-            bullets.push_back(newPencil);
-            bullet_spawn_clock.restart();
-        }
-        // boss子弹生成逻辑
-        if (boss_hit_clock.getElapsedTime().asSeconds() >= bossHitRate)
-        {
-            BossBullet newbossbullet(bossBullet, firstBoss.getPosition());
-            bossbullets.push_back(newbossbullet);
-            boss_hit_clock.restart();
-        }
-        /* ------------------------------------- 实体生成模块 --------------------------------------- */
+            }
+			if (auto* key = event->getIf<sf::Event::KeyPressed>())
+			{
+				// 按下空格键时，玩家射击
+				if (key->scancode == sf::Keyboard::Scancode::P)
+				{
+					isPause = !isPause;  // 切换暂停状态
+                    if (isPause)
+                    {
 
-        /* --------------------------------- 所有游戏对象更新模块 ------------------------------------ */
-        //更新boss
-        firstBoss.update(window.getSize());
-        // 更新所有敌人
-        for (auto& ball : balls)
-        {
-            ball.update(window.getSize());
-            if (ball.getHealth() <= 0)  // 如果敌人生命值耗尽
-            {
-                score += ball.getOriginalHealth() * 8;  // 增加分数
-                ball.setHealth(0);
-                // 从向量中移除被摧毁的敌人
-                balls.erase(std::remove_if(balls.begin(), balls.end(),
-                    [](const Enemy& b) { return b.getHealth() <= 0; }), balls.end());
-                scoreLabel.setString("Score: " + std::to_string(score));  // 更新分数显示
-            }
+                    }
+				}
+			}
+            
         }
-        // 更新所有子弹
-        for (auto& bullet : bullets)
+        if (!isPause)
         {
-            bullet.update(window, laserSound, player);
-            // 如果子弹击中目标或飞出屏幕，且子弹数量大于2
-            if ((bullet.getIsHit() || bullet.getPosition().y < 0) && bullets.size() > 2)
+            /* ------------------------------------- 实体生成模块 --------------------------------------- */
+            // 敌人生成逻辑
+            if (ball_spawn_clock.getElapsedTime().asSeconds() >= enemySpawnRate)
             {
-                // 从向量中移除子弹
-                bullets.erase(std::remove_if(bullets.begin(), bullets.end(),
-                    [](const Bullet& p) { return p.getIsHit() || p.getPosition().y < 0; }), bullets.end());
+                // 创建新敌人
+                Enemy newBall(enemyTextures[std::rand() % 3]);
+                float scale = 0.1f + ((float)(std::rand() % 5 + 1) / 60);
+                newBall.setScale({ scale, scale });
+                balls.push_back(newBall);
+                ball_spawn_clock.restart();
+                // 逐渐增加难度(减少生成间隔)
+                if (enemySpawnRate > 1) enemySpawnRate -= 0.1f;
+                std::cout << "Number of balls: " << balls.size() << std::endl;
             }
-        }
-        // 更新boss子弹
-        for (auto& bossbullet : bossbullets)
-        {
-            bossbullet.update();
-            if (bullet.getIsHit() || bullet.getPosition().y < 0)
+            // 子弹生成逻辑
+            if (bullets[bullets.size() - 1].getIsShooting() == true &&
+                bullet_spawn_clock.getElapsedTime().asSeconds() >= pencilSpawnRate)
             {
-                bossbullets.erase(std::remove_if(bossbullets.begin(), bossbullets.end(),
-                    [](const BossBullet& q) { return q.getIsHit() || q.getPosition().y < 0;}), bossbullets.end());
+                Bullet newPencil(bulletTex, player.getPosition());
+                bullets.push_back(newPencil);
+                bullet_spawn_clock.restart();
             }
-        }
-        /* --------------------------------- 所有游戏对象更新模块 ------------------------------------ */
+            // boss子弹生成逻辑
+            if (boss_hit_clock.getElapsedTime().asSeconds() >= bossHitRate)
+            {
+                BossBullet newbossbullet(bossBullet, firstBoss.getPosition());
+                bossbullets.push_back(newbossbullet);
+                boss_hit_clock.restart();
+            }
+            /* ------------------------------------- 实体生成模块 --------------------------------------- */
 
-        /* ------------------------------------ 碰撞检测模块 ----------------------------------------- */
-        for (auto& ball : balls)
-        {
-            // 检测玩家是否被敌人击中
-            if (checkIfPlayerIsHit(player, ball) && hitRestrictor.getElapsedTime().asSeconds() >= 1)
+            /* --------------------------------- 所有游戏对象更新模块 ------------------------------------ */
+            //更新boss
+            firstBoss.update(window.getSize());
+            // 更新所有敌人
+            for (auto& ball : balls)
             {
-                player.setHealth(player.getHealth() - 1);  // 减少生命值
-                healthLabel.setString(std::to_string(player.getHealth()) + " HP");  // 更新生命值显示
-                hitRestrictor.restart();
-                player.setColor(sf::Color::Red);  // 玩家变红表示受伤
+                ball.update(window.getSize());
+                if (ball.getHealth() <= 0)  // 如果敌人生命值耗尽
+                {
+                    score += ball.getOriginalHealth() * 8;  // 增加分数
+                    ball.setHealth(0);
+                    // 从向量中移除被摧毁的敌人
+                    balls.erase(std::remove_if(balls.begin(), balls.end(),
+                        [](const Enemy& b) { return b.getHealth() <= 0; }), balls.end());
+                    scoreLabel.setString("Score: " + std::to_string(score));  // 更新分数显示
+                }
             }
-            // 受伤后恢复颜色
-            if (player.getColor() == sf::Color::Red && hitRestrictor.getElapsedTime().asSeconds() >= 0.5)
-            {
-                player.setColor(sf::Color::White);
-            }
-            // 检测子弹是否击中敌人
+            // 更新所有子弹
             for (auto& bullet : bullets)
             {
-                if (checkShotHit(bullet, ball)) hitSound.play();  // 播放击中音效
-            }
-            // 检测子弹是否击中 Boss
-            for (auto& bullet : bullets) {
-                if (checkShotHitBoss(bullet, firstBoss) && hitbossRestrictor.getElapsedTime().asSeconds() >= 0.1) {
-                    hitSound.play();  // 播放 Boss 被击中的音效
-                    hitbossRestrictor.restart();
-                    firstBoss.setColor(sf::Color::Red);
-                }
-                if (firstBoss.getColor() == sf::Color::Red && hitbossRestrictor.getElapsedTime().asSeconds() >= 0.5)
+                bullet.update(window, laserSound, player);
+                // 如果子弹击中目标或飞出屏幕，且子弹数量大于2
+                if ((bullet.getIsHit() || bullet.getPosition().y < 0) && bullets.size() > 2)
                 {
-                    firstBoss.setColor(sf::Color::White);
+                    // 从向量中移除子弹
+                    bullets.erase(std::remove_if(bullets.begin(), bullets.end(),
+                        [](const Bullet& p) { return p.getIsHit() || p.getPosition().y < 0; }), bullets.end());
                 }
             }
-        }
-        for (auto& bossbullet : bossbullets) {
-            if (checkBossHit(bossbullet, player) && hitRestrictor.getElapsedTime().asSeconds() >= 1)
+            // 更新boss子弹
+            for (auto& bossbullet : bossbullets)
             {
-                player.setHealth(player.getHealth() - 2);  // 减少生命值
-                healthLabel.setString(std::to_string(player.getHealth()) + " HP");  // 更新生命值显示
-                hitRestrictor.restart();
-                player.setColor(sf::Color::Red);  // 玩家变红表示受伤
+                bossbullet.update();
+                if (bullet.getIsHit() || bullet.getPosition().y < 0)
+                {
+                    bossbullets.erase(std::remove_if(bossbullets.begin(), bossbullets.end(),
+                        [](const BossBullet& q) { return q.getIsHit() || q.getPosition().y < 0;}), bossbullets.end());
+                }
             }
-            // 受伤后恢复颜色
-            if (player.getColor() == sf::Color::Red && hitRestrictor.getElapsedTime().asSeconds() >= 0.5)
+            /* --------------------------------- 所有游戏对象更新模块 ------------------------------------ */
+
+            /* ------------------------------------ 碰撞检测模块 ----------------------------------------- */
+            for (auto& ball : balls)
             {
-                player.setColor(sf::Color::White);
+                // 检测玩家是否被敌人击中
+                if (checkIfPlayerIsHit(player, ball) && hitRestrictor.getElapsedTime().asSeconds() >= 1)
+                {
+                    player.setHealth(player.getHealth() - 1);  // 减少生命值
+                    healthLabel.setString(std::to_string(player.getHealth()) + " HP");  // 更新生命值显示
+                    hitRestrictor.restart();
+                    player.setColor(sf::Color::Red);  // 玩家变红表示受伤
+                }
+                // 受伤后恢复颜色
+                if (player.getColor() == sf::Color::Red && hitRestrictor.getElapsedTime().asSeconds() >= 0.5)
+                {
+                    player.setColor(sf::Color::White);
+                }
+                // 检测子弹是否击中敌人
+                for (auto& bullet : bullets)
+                {
+                    if (checkShotHit(bullet, ball)) hitSound.play();  // 播放击中音效
+                }
+                // 检测子弹是否击中 Boss
+                for (auto& bullet : bullets) {
+                    if (checkShotHitBoss(bullet, firstBoss) && hitbossRestrictor.getElapsedTime().asSeconds() >= 0.1) {
+                        hitSound.play();  // 播放 Boss 被击中的音效
+                        hitbossRestrictor.restart();
+                        firstBoss.setColor(sf::Color::Red);
+                    }
+                    if (firstBoss.getColor() == sf::Color::Red && hitbossRestrictor.getElapsedTime().asSeconds() >= 0.5)
+                    {
+                        firstBoss.setColor(sf::Color::White);
+                    }
+                }
+            }
+            for (auto& bossbullet : bossbullets) {
+                if (checkBossHit(bossbullet, player) && hitRestrictor.getElapsedTime().asSeconds() >= 1)
+                {
+                    player.setHealth(player.getHealth() - 2);  // 减少生命值
+                    healthLabel.setString(std::to_string(player.getHealth()) + " HP");  // 更新生命值显示
+                    hitRestrictor.restart();
+                    player.setColor(sf::Color::Red);  // 玩家变红表示受伤
+                }
+                // 受伤后恢复颜色
+                if (player.getColor() == sf::Color::Red && hitRestrictor.getElapsedTime().asSeconds() >= 0.5)
+                {
+                    player.setColor(sf::Color::White);
+                }
+            }
+            /* ------------------------------------ 碰撞检测模块 ----------------------------------------- */
+            // 更新玩家位置
+            player.movePlayer(window.getSize());
+
+
+            // 游戏结束检测
+            if (firstBoss.getHealth() <= 0 || player.getHealth() <= 0)
+            {
+                bossSound.play();
+                std::cout << "GAME OVER!" << std::endl;
+
+                // 重置玩家位置和状态
+                player.setPosition({ (float)windowSize.x / 2.f, (float)windowSize.y / 1.5f });
+                window.clear();
+
+                // 显示游戏结束画面
+                GameOverScreen gameOverScreen(background.getTexture(), player.getTexture(), boss.getTexture(), font, windowSize, player.getHealth());
+                gameOverScreen.run(window, firstBoss);
+
+                // 重置游戏状态
+                enemySpawnRate = 5;
+                highScoreLable.setString("High Score: " + std::to_string(checkHighScore(score)));
+                score = 0;
+                scoreLabel.setString("Score: 0");
+                player.setHealth(5);
+                healthLabel.setString("5 HP");
+                balls.clear();  // 清空所有敌人
             }
         }
-        /* ------------------------------------ 碰撞检测模块 ----------------------------------------- */
 
-        // 更新玩家位置
-        player.movePlayer(window.getSize());
-
-        // 清屏
-        window.clear();
-
-        // 绘制所有游戏对象 //
-
-        // 绘制背景和文本
-        window.draw(background);
-        window.draw(scoreLabel);
-        window.draw(healthLabel);
-        window.draw(highScoreLable);
-
-        // 绘制所有敌人
-        for (const auto& ball : balls)
-        {
-            window.draw(ball);
-        }
-
-        // 绘制所有子弹
-        for (const auto& bullet : bullets)
-        {
-            window.draw(bullet);
-        }
-        
-        for (const auto& bossbullet : bossbullets)
-        {
-            window.draw(bossbullet);
-        }
-
-        // 绘制玩家
-        window.draw(player);
-        window.draw(firstBoss);
-
-        // 显示绘制内容
-        window.display();
-
-        // 游戏结束检测
-        if (firstBoss.getHealth() <= 0 || player.getHealth()<=0)
-        {
-            bossSound.play();
-            std::cout << "GAME OVER!" << std::endl;
-
-            // 重置玩家位置和状态
-            player.setPosition({ (float)windowSize.x / 2.f, (float)windowSize.y / 1.5f });
-            window.clear();
-
-            // 显示游戏结束画面
-            GameOverScreen gameOverScreen(background.getTexture(), player.getTexture(), boss.getTexture(), font, windowSize);
-            gameOverScreen.run(window,firstBoss);
-
-            // 重置游戏状态
-            enemySpawnRate = 5;
-            highScoreLable.setString("High Score: " + std::to_string(checkHighScore(score)));
-            score = 0;
-            scoreLabel.setString("Score: 0");
-            player.setHealth(5);
-            healthLabel.setString("5 HP");
-            balls.clear();  // 清空所有敌人
-        }
+        DrawGameState(window, font, background, scoreLabel, healthLabel, highScoreLable,
+            balls, bullets, bossbullets, player, firstBoss, isPause);
     }
     return 0;
 }

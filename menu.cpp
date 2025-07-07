@@ -15,7 +15,7 @@ Menu::Menu(const sf::Texture& backgroundTexture,
         boss({ (float)windowSize.x, (float)windowSize.y }, bossTexture),
         gameTitleText(font, "DZ vs MAMBA", 100), playCont(font, "Press Space to Continue Last Game"),  modeCont(font, "Mode", 50), helpCont(font, "Help", 50), exitCont(font, "Exit", 50),//标题文本、提示文本
         easyText(font, "Easy", 50), normalText(font, "Normal", 50), hardText(font, "Hard", 50),
-        rulescontextText(font, "Use WASD to move DinZheng\nPress the Mouse'left to defeat the\nMamba and hajimi\nTry to hide from the hajimis", 50)
+        rulescontextText(font, "Use WASD to move DinZheng\nP to pause game\nC to continue game\nPress the Mouse'left to defeat the\nMamba and hajimi\nTry to hide from the hajimis", 50)
     {
         //设置背景，全屏
         background.setPosition({ 0,0.0 });
@@ -88,6 +88,8 @@ Menu::Menu(const sf::Texture& backgroundTexture,
         int selectedOptionLevelsMenu = 0;
         const int totalOptionsLevelsMenu = 3;
         levelsClass level = levelsClass::Default;
+
+        isContinue = false; // 是否继续上次游戏
     }
 
 
@@ -197,6 +199,9 @@ int Menu::startMenu(sf::RenderWindow& window) {
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
             {
+
+                //isContinueLast();
+				isContinue = true; // 设置为继续上次游戏
                 return readLastLevel();
             }
         }
@@ -310,4 +315,8 @@ int Menu::startMenu(sf::RenderWindow& window) {
 
     }
     return 0;
+}
+
+bool Menu::isContinueLast() {
+    return isContinue;
 }

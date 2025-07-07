@@ -23,7 +23,7 @@ public:
      * @param font 字体引用
      * @param windowSize 窗口尺寸
      */
-    GameOverScreen(const sf::Texture& backgroundTexture, const sf::Texture& playerTexture, const sf::Texture& bossTexture, const sf::Font& font, sf::Vector2u windowSize);
+    GameOverScreen(const sf::Texture& backgroundTexture, const sf::Texture& playerTexture, const sf::Texture& bossTexture, const sf::Font& font, sf::Vector2u windowSize, int playerhealth);
 
     /**
     * @brief 运行游戏结束画面主循环

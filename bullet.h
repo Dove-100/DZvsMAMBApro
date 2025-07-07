@@ -36,5 +36,7 @@ private:
     bool isHit;//是否击中
     bool hadShooted;//是否已经击中
     sf::Vector2f velocity_bullet;  //速度矢量
+	sf::Clock bulletClock;  // 用于控制子弹的发射时间间隔
+	float bulletShootRate = 1.0f;  // 子弹发射间隔时间（秒）
 };
 #endif // !_BULLET_H_
