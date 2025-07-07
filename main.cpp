@@ -16,6 +16,7 @@
 #include "bossBullet.h"
 #include "gameOverpage.h"
 
+
 bool isPause = false; // ”Œœ∑ «∑Ò‘›Õ£
 
 int main()
