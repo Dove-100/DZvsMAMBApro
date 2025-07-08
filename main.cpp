@@ -18,6 +18,7 @@
 #include "drop.h"
 #include "animation.h"
 
+
 bool isPause = false; // ”Œœ∑ «∑Ò‘›Õ£
 
 int main()
