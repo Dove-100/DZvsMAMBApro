@@ -16,12 +16,18 @@
 #include "bossBullet.h"
 #include "gameOverpage.h"
 #include "drop.h"
-
+#include "animation.h"
 
 bool isPause = false; // 游戏是否暂停
 
 int main()
 {
+    std::vector<Animation> explosions;
+    sf::Texture explosionTexture;
+    explosionTexture.loadFromFile("PNG/type_C.png"); // 假设为横向帧图
+    int explosionFrameCount = 48; // 帧数
+    float explosionFrameTime = 0.05f; // 每帧时间
+
     /*-------------------------------------------- 加载模块 ---------------------------------------- */
     // 初始化随机数种子
     std::srand(static_cast<unsigned>(std::time(nullptr)));
@@ -106,6 +112,7 @@ int main()
     sf::Clock hitRestrictor;  // 击中限制计时器
     sf::Clock boss_hit_clock;
     sf::Clock hitbossRestrictor;
+    sf::Clock clock;
 
     // 加载字体
     sf::Font font;
@@ -193,7 +200,6 @@ int main()
 					isPause = !isPause;  // 切换暂停状态
 				}
 			}
-            
         }
         if (!isPause)
         {
@@ -237,6 +243,7 @@ int main()
                 ball.update(window.getSize());
                 if (ball.getHealth() <= 0)  // 如果敌人生命值耗尽
                 {
+                    explosions.emplace_back(explosionTexture, explosionFrameCount, explosionFrameTime, sf::Vector2f({ ball.getPosition().x - 128,ball.getPosition().y - 128 }));
                     if (srandbuff() == 1)
                     {
                         Drop drop(dropTexture[0], ball);
@@ -249,7 +256,6 @@ int main()
                         drop.setName("shootingRate");
                         drops.push_back(drop);  // 添加攻速掉落物
                     }
-                    
                     score += ball.getOriginalHealth() * 8;  // 增加分数
                     ball.setHealth(0);
                     // 从向量中移除被摧毁的敌人
@@ -381,9 +387,16 @@ int main()
                 balls.clear();  // 清空所有敌人
             }
         }
+        float deltaTime = clock.restart().asSeconds();
+        for (auto& explosion : explosions) {
+            explosion.update(deltaTime);
+        }
+        explosions.erase(std::remove_if(explosions.begin(), explosions.end(),
+            [](const Animation& anim) { return anim.isFinished(); }), explosions.end());
 
         DrawGameState(window, font, background, scoreLabel, healthLabel, highScoreLable,
-            balls, bullets, bossbullets, player, firstBoss, drops, isPause);
+            balls, bullets, bossbullets, player, firstBoss, drops, explosions, isPause);
+        
     }
     return 0;
 }

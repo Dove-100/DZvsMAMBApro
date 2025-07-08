@@ -51,6 +51,9 @@
     <ClCompile Include="drop.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="animation.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="menu.h">
@@ -84,6 +87,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="drop.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="animation.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

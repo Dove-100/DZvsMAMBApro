@@ -74,6 +74,7 @@ std::vector<Bullet> bullets,
 std::vector<BossBullet> bossbullets,
 Player& player, Boss1& boss,
 std::vector<Drop> drops,
+std::vector<Animation> explosions,
 bool isPause);
 
 int srandbuff();

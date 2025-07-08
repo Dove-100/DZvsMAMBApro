@@ -51,7 +51,7 @@ Bullet::Bullet(const sf::Texture& texture, sf::Vector2f position) :
     }
 
 
-    float Bullet::bulletShootRate = 1.0f; // 子弹发射间隔时间（秒）
+    float Bullet::bulletShootRate = 0.1f; // 子弹发射间隔时间（秒）
 
     //获取射击状态
     bool Bullet::getIsShooting()const//get value of isShooting

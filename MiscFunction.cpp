@@ -279,6 +279,7 @@ void DrawGameState(sf::RenderWindow& window, sf::Font& font, Background& backgro
 	std::vector<BossBullet> bossbullets,
 	Player& player, Boss1& boss,
 	std::vector<Drop> drops,
+	std::vector<Animation> explosions,
 	bool isPause)
 {
 	// «Â∆¡
@@ -307,6 +308,11 @@ void DrawGameState(sf::RenderWindow& window, sf::Font& font, Background& backgro
 	for (const auto& bossbullet : bossbullets)
 	{
 		window.draw(bossbullet);
+	}
+
+	// ªÊ÷∆±¨’®∂Øª≠
+	for (const auto& explosion : explosions) {
+		window.draw(explosion);
 	}
 
 	for (const auto& drop : drops)

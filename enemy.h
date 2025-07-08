@@ -3,6 +3,7 @@
 #define _ENEMY_H_
 #include <SFML/graphics.hpp>  
 #include <cmath>
+#include "animation.h"
 
 #define MAX_SPEED 4
 #define BOUNCE_RNDM .1
