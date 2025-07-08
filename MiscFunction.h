@@ -11,6 +11,7 @@
 #include "bossBullet.h"
 #include "bullet.h"
 #include "enemy.h"
+#include "drop.h"
 #include <iostream>
 #include <fstream>
 /**
@@ -72,7 +73,11 @@ std::vector<Enemy> balls,
 std::vector<Bullet> bullets,
 std::vector<BossBullet> bossbullets,
 Player& player, Boss1& boss,
+std::vector<Drop> drops,
 bool isPause);
 
+int srandbuff();
+
+bool checkgetdrop(Drop& drop, Player& player);
 
 #endif // !_MISCFUNCTION_H_

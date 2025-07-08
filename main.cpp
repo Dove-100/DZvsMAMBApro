@@ -15,6 +15,7 @@
 #include "bullet.h"
 #include "bossBullet.h"
 #include "gameOverpage.h"
+#include "drop.h"
 
 
 bool isPause = false; // 游戏是否暂停
@@ -73,6 +74,11 @@ int main()
     enemyTextures[1].loadFromFile("PNG/googly-b.png");
     enemyTextures[2].loadFromFile("PNG/googly-c.png");
 
+    //加载掉落物纹理
+	sf::Texture dropTexture[2];
+	dropTexture[0].loadFromFile("PNG/health.png");  // 加载生命值掉落物纹理
+	dropTexture[1].loadFromFile("PNG/shootingRate.png");  // 加载攻速掉落物纹理
+
     //加载Boss纹理
     sf::Texture bossTexture;
 
@@ -80,6 +86,7 @@ int main()
     std::vector<Enemy> balls;
     std::vector<Bullet> bullets;
     std::vector<BossBullet> bossbullets;
+	std::vector<Drop> drops;  // 存储掉落物
 
     // 创建第一个敌人对象
     Enemy firstEnemy(enemyTextures[std::rand() % 3]);  // 随机选择纹理
@@ -89,7 +96,7 @@ int main()
 
     // 加载第一个子弹对象
     sf::Texture bulletTex;
-    bulletTex.loadFromFile("red_star.png");
+    bulletTex.loadFromFile("PNG/circle_bullet.png");
     Bullet bullet(bulletTex, player.getPosition());
     bullets.push_back(bullet);
 
@@ -144,9 +151,11 @@ int main()
         writeLevel(level);
         firstBoss.setHealth(300);
     }
+	// 如果是继续上次游戏，读取上次的生命值
     if (isContinuelast) 
     {
 		player.setHealth(readlasthealth());  // 恢复玩家生命值
+		score = readLastScore();  // 恢复分数
     }
 
     // 设置文本样式
@@ -154,7 +163,7 @@ int main()
 
     //加载boss子弹纹理
     sf::Texture bossBullet;
-    bossBullet.loadFromFile("boss/bosshit.png");
+    bossBullet.loadFromFile("PNG/basketball.png");
     BossBullet firstBullet(bossBullet, firstBoss.getPosition());
     bossbullets.push_back(firstBullet);
 
@@ -182,10 +191,6 @@ int main()
 				if (key->scancode == sf::Keyboard::Scancode::P)
 				{
 					isPause = !isPause;  // 切换暂停状态
-                    if (isPause)
-                    {
-
-                    }
 				}
 			}
             
@@ -232,6 +237,19 @@ int main()
                 ball.update(window.getSize());
                 if (ball.getHealth() <= 0)  // 如果敌人生命值耗尽
                 {
+                    if (srandbuff() == 1)
+                    {
+                        Drop drop(dropTexture[0], ball);
+                        drop.setName("health");
+						drops.push_back(drop);  // 添加生命值掉落物
+                    }
+					else if (srandbuff() == 2)
+					{
+						Drop drop(dropTexture[1], ball);
+                        drop.setName("shootingRate");
+                        drops.push_back(drop);  // 添加攻速掉落物
+                    }
+                    
                     score += ball.getOriginalHealth() * 8;  // 增加分数
                     ball.setHealth(0);
                     // 从向量中移除被摧毁的敌人
@@ -312,6 +330,28 @@ int main()
                     player.setColor(sf::Color::White);
                 }
             }
+            for (auto& drop : drops)
+            {
+                if (checkgetdrop(drop, player))
+                {
+					if (drop.getName() == "health")
+					{
+                        player.setHealth(player.getHealth() + 1);  // 增加生命值
+                        if (player.getHealth() > 5)
+                        {
+                            player.setHealth(5);  // 确保生命值不超过5
+                        }
+                        healthLabel.setString(std::to_string(player.getHealth()) + " HP");
+					}
+					else if (drop.getName() == "shootingRate")
+					{
+						bullet.setshootRate(bullet.getshootRate() - 0.9f);  // 增加射击速率
+						if (bullet.getshootRate() < 0.1f) bullet.setshootRate(0.1f);  // 确保射击速率不低于0.1秒
+					}
+					drops.erase(std::remove_if(drops.begin(), drops.end(),
+						[](const Drop& d) { return d.getName() == "health" || d.getName() == "shootingRate"; }), drops.end());
+                }
+            }
             /* ------------------------------------ 碰撞检测模块 ----------------------------------------- */
             // 更新玩家位置
             player.movePlayer(window.getSize());
@@ -343,7 +383,7 @@ int main()
         }
 
         DrawGameState(window, font, background, scoreLabel, healthLabel, highScoreLable,
-            balls, bullets, bossbullets, player, firstBoss, isPause);
+            balls, bullets, bossbullets, player, firstBoss, drops, isPause);
     }
     return 0;
 }

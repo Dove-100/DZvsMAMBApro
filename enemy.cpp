@@ -1,4 +1,5 @@
 #include "enemy.h"
+
     // 构造函数
     // 参数: tex - 书籍纹理
 Enemy::Enemy(const sf::Texture& tex) : sf::Sprite(tex), velocity(sf::Vector2f{ -BASE_SPEED, -BASE_SPEED })

@@ -135,14 +135,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="animation.cpp" />
     <ClCompile Include="background.cpp" />
     <ClCompile Include="boss.cpp" />
     <ClCompile Include="bossBullet.cpp" />
     <ClCompile Include="boss_1.cpp" />
     <ClCompile Include="bullet.cpp" />
+    <ClCompile Include="drop.cpp" />
     <ClCompile Include="enemy.cpp" />
-    <ClCompile Include="entity.cpp" />
     <ClCompile Include="gameOverpage.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="menu.cpp" />
@@ -150,14 +149,13 @@
     <ClCompile Include="player.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="animation.h" />
     <ClInclude Include="background.h" />
     <ClInclude Include="boss.h" />
     <ClInclude Include="bossBullet.h" />
     <ClInclude Include="boss_1.h" />
     <ClInclude Include="bullet.h" />
+    <ClInclude Include="drop.h" />
     <ClInclude Include="enemy.h" />
-    <ClInclude Include="entity.h" />
     <ClInclude Include="gameOverpage.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="MiscFunction.h" />

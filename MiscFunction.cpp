@@ -43,7 +43,7 @@ Boss loadBoss(sf::RenderWindow& window)
 Background loadBackground()
 {
 	sf::Texture backgroundTexture;
-	backgroundTexture.loadFromFile("PNG/background.png");//加载背景纹理
+	backgroundTexture.loadFromFile("PNG/background(1.png");//加载背景纹理
 	Background backgroundSprite(backgroundTexture, { 0.f, 0.f });
 	return backgroundSprite;
 }
@@ -278,6 +278,7 @@ void DrawGameState(sf::RenderWindow& window, sf::Font& font, Background& backgro
 	std::vector<Bullet> bullets,
 	std::vector<BossBullet> bossbullets,
 	Player& player, Boss1& boss,
+	std::vector<Drop> drops,
 	bool isPause)
 {
 	// 清屏
@@ -308,6 +309,11 @@ void DrawGameState(sf::RenderWindow& window, sf::Font& font, Background& backgro
 		window.draw(bossbullet);
 	}
 
+	for (const auto& drop : drops)
+	{
+		window.draw(drop);
+	}
+
 	// 绘制玩家
 	window.draw(player);
 	window.draw(boss);
@@ -315,13 +321,53 @@ void DrawGameState(sf::RenderWindow& window, sf::Font& font, Background& backgro
 	if (isPause)
 	{
 		// 绘制暂停界面
-		sf::Text pauseText(font, "Game Paused", 50);
+		sf::Text pauseText(font, "Game Paused\nPress P again to continue", 50);
 		pauseText.setFillColor(sf::Color::White);
 		pauseText.setPosition({ (float)window.getSize().x / 2, (float)window.getSize().y / 2 });
 		pauseText.setOrigin({ pauseText.getGlobalBounds().size.x / 2, pauseText.getGlobalBounds().size.y / 2 });
+
+		// 创建暂停背景
+		sf::RectangleShape pauseOverlay;
+		pauseOverlay.setSize(sf::Vector2f(window.getSize()));
+		pauseOverlay.setFillColor(sf::Color(0, 0, 0, 150)); // 半透明黑色
+		window.draw(pauseOverlay);
 		window.draw(pauseText);
+
 	}
 
 	// 显示绘制内容
 	window.display();
+}
+
+int srandbuff()
+{
+	// 设置随机数种子
+	//std::srand(static_cast<unsigned int>(std::time(nullptr)));
+	// 生成随机数0-99
+	int seed = std::rand()%100;
+	if (seed < 25)
+	{
+		return 1;
+		
+	}
+	else if (seed >= 25 && seed < 50)
+	{
+		return 2;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+bool checkgetdrop(Drop& drop, Player& player)
+{
+	// 获取两者的全局边界框
+	sf::FloatRect playerBounds = player.getGlobalBounds();
+	sf::FloatRect dropBounds = drop.getGlobalBounds();
+	// 使用SFML内置的碰撞检测
+	if (auto intersection = playerBounds.findIntersection(dropBounds)) {
+		return true;
+	}
+	return false;
 }

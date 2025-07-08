@@ -2,10 +2,11 @@
 #ifndef _ENEMY_H_
 #define _ENEMY_H_
 #include <SFML/graphics.hpp>  
-#include <cmath>  
-#define MAX_SPEED 7
+#include <cmath>
+
+#define MAX_SPEED 4
 #define BOUNCE_RNDM .1
-#define BASE_SPEED 5
+#define BASE_SPEED 2
 
 class Enemy : public sf::Sprite {
 public:

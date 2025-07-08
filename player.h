@@ -7,7 +7,7 @@
 
 using std::string;
 #define PLAYER_SCALE 0.15f
-#define PLAYER_SPEED 13.f
+#define PLAYER_SPEED 7.f
 
 class Player : public sf::Sprite
 {

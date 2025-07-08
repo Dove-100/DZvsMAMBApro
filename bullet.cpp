@@ -14,7 +14,6 @@ Bullet::Bullet(const sf::Texture& texture, sf::Vector2f position) :
         isShooting = false;//初始状态：未射击
         isHit = false;//初始状态：未射中
         speed = 50;//速度：30
-        
     }
     //更新铅笔状态
     // 参数：
@@ -50,6 +49,10 @@ Bullet::Bullet(const sf::Texture& texture, sf::Vector2f position) :
 			bulletClock.restart(); // 重置计时器
         }
     }
+
+
+    float Bullet::bulletShootRate = 1.0f; // 子弹发射间隔时间（秒）
+
     //获取射击状态
     bool Bullet::getIsShooting()const//get value of isShooting
     {
@@ -70,3 +73,12 @@ Bullet::Bullet(const sf::Texture& texture, sf::Vector2f position) :
     {
         return isHit;
     }
+
+	void Bullet::setshootRate(float rate)
+	{
+		bulletShootRate = rate;
+	}
+	float Bullet::getshootRate()
+	{
+		return bulletShootRate;  // 返回当前射击速率
+	}
