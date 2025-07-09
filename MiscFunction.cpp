@@ -347,8 +347,6 @@ void DrawGameState(sf::RenderWindow& window, sf::Font& font, Background& backgro
 
 int srandbuff()
 {
-	// 设置随机数种子
-	//std::srand(static_cast<unsigned int>(std::time(nullptr)));
 	// 生成随机数0-99
 	int seed = std::rand()%100;
 	if (seed < 25)

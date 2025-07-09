@@ -27,7 +27,7 @@ Bullet::Bullet(const sf::Texture& texture, sf::Vector2f position) :
         {
             setPosition({ player.getPosition().x, player.getPosition().y });
         }
-        //射击，铅笔移动
+        //射击，子弹移动
         if (isShooting && !hadShooted)
         {
             float x = sf::Mouse::getPosition().x;
@@ -51,7 +51,7 @@ Bullet::Bullet(const sf::Texture& texture, sf::Vector2f position) :
     }
 
 
-    float Bullet::bulletShootRate = 0.1f; // 子弹发射间隔时间（秒）
+    float Bullet::bulletShootRate = 0.5f; // 子弹发射间隔时间（秒）
 
     //获取射击状态
     bool Bullet::getIsShooting()const//get value of isShooting

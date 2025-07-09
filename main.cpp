@@ -1,3 +1,36 @@
+/* .exe 小组游戏设计
+
+一、界面
+1. 游戏开始界面
+2. 游戏结束界面
+3. 游戏帮助界面
+4. 背景
+5. 文本提示
+
+二、游戏逻辑
+1. 玩家控制
+2. 敌人生成
+3. 子弹生成
+4. 碰撞检测
+5. 分数计算
+6. 游戏暂停
+7. 游戏存档（继续上次游戏，保存了玩家的生命值、得分）
+8. 游戏难度选择
+9. 游戏结束
+10. 掉落物生成
+11. 击杀特效
+12. 打败Boss
+
+三、系统资源管理
+1. 音乐和音效
+2. 纹理加载
+
+四、其他
+1. 爆炸动画
+2. 射击方向控制
+3. 掉落物增益效果
+*/
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/Window.hpp>
 #include <SFML/Audio.hpp>
@@ -183,7 +216,7 @@ int main()
     // 主游戏循环
     while (window.isOpen())
     {
-        // 事件处理循环
+        /* -------------------------------------- 事件处理循环 ------------------------------------- */
         while (const std::optional event = window.pollEvent())
         {
             // 按ESC键关闭窗口
@@ -202,6 +235,8 @@ int main()
 				}
 			}
         }
+        /* -------------------------------------- 事件处理循环 ------------------------------------- */
+
         if (!isPause)
         {
             /* ------------------------------------- 实体生成模块 --------------------------------------- */
@@ -229,6 +264,7 @@ int main()
             // boss子弹生成逻辑
             if (boss_hit_clock.getElapsedTime().asSeconds() >= bossHitRate)
             {
+                bossHitSound.play();
                 BossBullet newbossbullet(bossBullet, firstBoss.getPosition());
                 bossbullets.push_back(newbossbullet);
                 boss_hit_clock.restart();
@@ -388,6 +424,7 @@ int main()
                 balls.clear();  // 清空所有敌人
             }
         }
+
         float deltaTime = clock.restart().asSeconds();
         for (auto& explosion : explosions) {
             explosion.update(deltaTime);
